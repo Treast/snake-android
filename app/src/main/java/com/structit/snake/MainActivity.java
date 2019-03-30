@@ -27,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
     private Snake mSnake;
     private Point mFood;
     private int mDirectionPlayer;
-
+    private Menu mMenu;
+    private boolean mIsStopped;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.mSnakeView = findViewById(R.id.snake);
 
-        SnakeOnTouchListener listener = new SnakeOnTouchListener();
+        SnakeOnTouchListener listener = new SnakeOnTouchListener(this);
         this.mSnakeView.setOnTouchListener(listener);
 
         this.mHandler = new RedrawHandler(this);
@@ -54,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        this.mMenu = menu;
+        this.mIsStopped = true;
+
         return true;
     }
 
@@ -63,7 +68,16 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()){
             case R.id.start:
-                newGame();
+                if(this.mIsStopped == true) {
+                    this.mMenu.getItem(0).setIcon(R.drawable.ic_stop);
+                    this.mIsStopped = false;
+
+                    newGame();
+                } else {
+                    this.mMenu.getItem(0).setIcon(R.drawable.ic_play);
+                    this.mIsStopped = true;
+                }
+
                 isSelected = true;
                 break;
 
@@ -171,22 +185,66 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (this.mSnake.getPart(0).getX() < 1 ||
-                this.mSnake.getPart(0).getX() > this.mSnakeView.getNbTileX()-1 ||
+                this.mSnake.getPart(0).getX() > this.mSnakeView.getNbTileX()-2 ||
                 this.mSnake.getPart(0).getY() < 1 ||
-                this.mSnake.getPart(0).getY() > this.mSnakeView.getNbTileY()-1 ||
+                this.mSnake.getPart(0).getY() > this.mSnakeView.getNbTileY()-2 ||
                 this.mSnake.isBitting())
         {
-            //TODO End the game
+            this.mMenu.getItem(0).setIcon(R.drawable.ic_play);
+        }
+        else if(this.mIsStopped) {
+            //Refresh the canvas
+            this.mSnakeView.clearTiles();
+            this.mSnakeView.invalidate();
         }
         else
         {
             //Refresh the canvas
             this.mSnakeView.clearTiles();
-            this.mSnakeView.updateSnake(this.mSnake);
             this.mSnakeView.updateFood(this.mFood);
+            this.mSnakeView.updateSnake(this.mSnake);
             this.mSnakeView.invalidate();
 
             this.mHandler.request();
         }
+    }
+
+    public void updateDirectionPlayer(float rawX, float rawY) {
+        double x = this.mSnakeView.getTileX(rawX);
+        double y = this.mSnakeView.getTileY(rawY);
+
+        switch(this.mSnake.getDirection())
+        {
+            case DIRECTION_UP:
+            case DIRECTION_DOWN:
+                if(this.mSnake.getPart(0).getX() > x) {
+                    this.mDirectionPlayer = DIRECTION_LEFT;
+                } else {
+                    this.mDirectionPlayer = DIRECTION_RIGHT;
+                }
+                break;
+
+            case DIRECTION_LEFT:
+            case DIRECTION_RIGHT:
+                if(this.mSnake.getPart(0).getY() > y) {
+                    this.mDirectionPlayer = DIRECTION_UP;
+                } else {
+                    this.mDirectionPlayer = DIRECTION_DOWN;
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        Log.d(LOG_TAG, "Stopping...");
+
+        this.mMenu.getItem(0).setIcon(R.drawable.ic_play);
+        this.mIsStopped = true;
+
+        super.onStop();
     }
 }

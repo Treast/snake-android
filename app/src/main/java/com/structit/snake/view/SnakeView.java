@@ -52,7 +52,7 @@ public class SnakeView extends GridView {
             setTile(TILE_WALL, x, mNbTileY - 1);
         }
 
-        for (int y = 1; y < mNbTileY - 1; y++) {
+        for (int y = 0; y < mNbTileY; y++) {
             setTile(TILE_WALL, 0, y);
             setTile(TILE_WALL, mNbTileX - 1, y);
         }

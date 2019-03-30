@@ -135,4 +135,12 @@ public abstract class GridView extends View {
     public static int getNbTileY() {
         return mNbTileY;
     }
+
+    public static double getTileX(float x) {
+        return Math.floor((x - mOffsetX) / mTileSize);
+    }
+
+    public static double getTileY(float y) {
+        return Math.floor((y - mOffsetY) / mTileSize);
+    }
 }

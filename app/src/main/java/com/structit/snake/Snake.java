@@ -63,6 +63,10 @@ public class Snake {
         this.mDirection = direction;
     }
 
+    public int getDirection() {
+        return this.mDirection;
+    }
+
     public Boolean isBaby()
     {
         return this.mPartList.size() == 1;
